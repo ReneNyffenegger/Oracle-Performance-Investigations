@@ -1,4 +1,3 @@
-set define off
 create or replace package body opi as
 
 
