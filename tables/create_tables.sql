@@ -10,8 +10,9 @@ create table opi_dim01 (
 );
 
 create table opi_fact (
-  pk      number,
-  dim01   not null references opi_dim01,
+  pk               number,
+  dim01            not null references opi_dim01,
+  attr_num_nn      number not null,
   --
   constraint opi_fact_pk primary key (pk)
 );

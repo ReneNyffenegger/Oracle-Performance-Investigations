@@ -66,19 +66,20 @@ create or replace package body opi as
           r := dbms_random.value;
 
           a := case 
-               when  r < 0.3  then  1
-               when  r < 0.5  then  2
-               when  r < 0.6  then  3
-               when  r < 0.61 then  4
-               when  r < 0.63 then  5
-               when  r < 0.8  then  6
-               when  r < 0.82 then  7
-               when  r < 0.85 then  8
-               when  r < 0.91 then  9
+               when  r < 0.3    then  1
+               when  r < 0.5    then  2
+               when  r < 0.6    then  3
+               when  r < 0.61   then  4
+               when  r < 0.799  then  5
+               when  r < 0.8    then  6
+               when  r < 0.82   then  7
+               when  r < 0.85   then  8
+               when  r < 0.91   then  9
                else                10 end;
 
-           fact_r(mod(i - 1, size_forall_insert)).pk    := i;
-           fact_r(mod(i - 1, size_forall_insert)).dim01 := dim01_pk(a);
+           fact_r(mod(i - 1, size_forall_insert)).pk          := i;
+           fact_r(mod(i - 1, size_forall_insert)).dim01       := dim01_pk(a);
+           fact_r(mod(i - 1, size_forall_insert)).attr_num_nn := trunc(dbms_random.value(10000, 100000));
 
            if mod(i, size_forall_insert) =  0 then
               forall j in 0 .. size_forall_insert-1 insert into opi_fact values fact_r(j);
@@ -113,8 +114,13 @@ create or replace package body opi as
   end explain_plan; -- }
 
   procedure join_fact_dim01 is -- {
-
     stmt varchar2(32000);
+
+    sum_   number;
+    count_ number;
+
+    t0     timestamp;
+    t1     timestamp;
   begin
 
 
@@ -127,7 +133,7 @@ create or replace package body opi as
       select 'use_merge(d f)' nt from dual
     ) loop
 
-      stmt := 'select /*+ ' || hi.nt || ' */ * 
+      stmt := 'select /*+ ' || hi.nt || ' */ sum(attr_num_nn), count(*)
   from
     opi_fact f join opi_dim01 d on f.dim01 = d.dim
   where
@@ -136,6 +142,13 @@ create or replace package body opi as
       explain_plan(stmt, hi.nt);
       plan2html.write_out('<code><pre>' || stmt || '</pre></code>');
       plan2html.explained_stmt_to_table(hi.nt);
+
+      t0 := systimestamp;
+      execute immediate stmt into sum_, count_;
+      t1 := systimestamp;
+
+      plan2html.write_out('count: ' || count_ || ', it took ' || round(extract(second from t1-t0), 3) || ' secods for the select statement to complete.');
+      plan2html.write_out('<p>');
 
     end loop;
 
