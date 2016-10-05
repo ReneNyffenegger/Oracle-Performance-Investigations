@@ -52,7 +52,9 @@ create or replace package body opi as
 
     begin
 
-      delete opi_fact;
+--    delete opi_fact;
+      execute immediate 'truncate table opi_fact';
+
       delete opi_dim01;
 
       fill_dim01;
