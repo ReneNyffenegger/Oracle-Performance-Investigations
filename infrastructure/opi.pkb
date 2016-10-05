@@ -114,7 +114,7 @@ create or replace package body opi as
   end explain_plan; -- }
 
   procedure join_fact_dim01 is -- {
-    stmt varchar2(32000);
+    stmt   varchar2(32000);
 
     sum_   number;
     count_ number;
@@ -159,6 +159,44 @@ create or replace package body opi as
     end loop;
 
   end join_fact_dim01; -- }
+
+  procedure select_parallel is -- {
+    stmt   varchar2(32000);
+
+    sum_   number;
+    count_ number;
+
+    t0     timestamp;
+    t1     timestamp;
+  begin
+
+    for hi in (
+      select 'parallel (  1)' nt from dual union all
+      select 'parallel (  2)' nt from dual union all
+      select 'parallel (  4)' nt from dual union all
+      select 'parallel (  8)' nt from dual union all
+      select 'parallel ( 16)' nt from dual union all
+      select 'parallel ( 32)' nt from dual union all
+      select 'parallel ( 64)' nt from dual union all
+      select 'parallel (128)' nt from dual
+    ) loop
+
+      stmt := 'select /*+ ' || hi.nt || ' */ sum(attr_num_nn), count(*) from opi_fact f';
+
+      explain_plan(stmt, hi.nt);
+      plan2html.write_out('<code><pre>' || stmt || '</pre></code>');
+      plan2html.explained_stmt_to_table(hi.nt);
+
+      t0 := systimestamp;
+      execute immediate stmt into sum_, count_;
+      t1 := systimestamp;
+
+      plan2html.write_out('count: ' || count_ || ', it took ' || round(extract(second from t1-t0), 3) || ' seconds for the select statement to complete.');
+      plan2html.write_out('<p>');
+
+    end loop;
+
+  end select_parallel; -- }
 
 
 end opi;
