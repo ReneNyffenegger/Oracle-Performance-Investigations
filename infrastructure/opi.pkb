@@ -17,7 +17,7 @@ create or replace package body opi as
       fact_r fact_t;
 
       size_forall_insert constant number := 100000;
-      nof_records        constant number := size_forall_insert * 10;
+      nof_records        constant number := size_forall_insert * case when user = 'RENE' then 10 else 100 end;
 
       dim01_pk vc_t := vc_t( -- {
           'AB'  , 
