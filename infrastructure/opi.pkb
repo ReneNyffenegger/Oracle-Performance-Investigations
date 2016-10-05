@@ -78,7 +78,7 @@ create or replace package body opi as
            fact_r(mod(i - 1, size_forall_insert)).pk    := i;
            fact_r(mod(i - 1, size_forall_insert)).dim01 := dim01_pk(a);
 
-           if mod(i, 100000) =  0 then
+           if mod(i, size_forall_insert) =  0 then
               forall j in 0 .. size_forall_insert-1 insert into opi_fact values fact_r(j);
            end if;
 
