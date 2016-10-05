@@ -147,7 +147,7 @@ create or replace package body opi as
       execute immediate stmt into sum_, count_;
       t1 := systimestamp;
 
-      plan2html.write_out('count: ' || count_ || ', it took ' || round(extract(second from t1-t0), 3) || ' secods for the select statement to complete.');
+      plan2html.write_out('count: ' || count_ || ', it took ' || round(extract(second from t1-t0), 3) || ' seconds for the select statement to complete.');
       plan2html.write_out('<p>');
 
     end loop;
