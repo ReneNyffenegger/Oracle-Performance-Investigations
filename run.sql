@@ -1,4 +1,4 @@
-truncate table opi_test_out;
+truncate table plan2html_t;
 
 exec opi.join_fact_dim01
 
